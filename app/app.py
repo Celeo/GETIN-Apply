@@ -8,7 +8,7 @@ from esipy import App, EsiClient, EsiSecurity
 
 from .shared import db
 from .models import User, Application
-from .esi import get_affiliation, esi_scopes
+from .explorer import all_esi_read_scopes, CharacterExplorer
 
 
 # Basic setup
@@ -107,7 +107,7 @@ def logout():
 def apply():
     if current_user.is_in_alliance:
         return redirect(url_for('index'))
-    scopes_sso_login = esi_security.get_auth_uri(scopes=esi_scopes, state='apply')
+    scopes_sso_login = esi_security.get_auth_uri(scopes=all_esi_read_scopes, state='apply')
     step = 1
     if session.get('apply_token'):
         step = 2
@@ -122,6 +122,43 @@ def submit_apply():
     db.session.add(Application(current_user.id, request.form.get('note')))
     db.session.commit()
     return redirect(url_for('index'))
+
+
+@app.route('/processing')
+@login_required
+def processing():
+    if not current_user.recruiter or current_user.admin:
+        return redirect(url_for('index'))
+    return render_template('processing.html', applications=Application.query.all())
+
+
+@app.route('/api_view/<int:character_id>')
+@login_required
+def view_api(character_id: int):
+    if not current_user.recruiter or current_user.admin:
+        return redirect(url_for('index'))
+    user = User.query.filter_by(id=character_id).first()
+    if not user:
+        flash('No user with that ID found', 'error')
+        return redirect(url_for('processing'))
+    if not user.refresh_token:
+        flash('That user doesn\'t have a refresh token on file', 'error')
+        return redirect(url_for('processing'))
+    return render_template('api_view.html', explorer=CharacterExplorer(esi_app, esi_security, esi_client, user.refresh_token))
+
+
+@app.route('/api_view/mail/<token>/<int:mail_id>')
+def get_mail_body(token, mail_id):
+    explorer = CharacterExplorer(esi_app, esi_security, esi_client, token, load_now=False)
+    return explorer.get_mail_body(mail_id)
+
+
+@app.route('/admin')
+@login_required
+def admin():
+    if not current_user.admin:
+        return redirect(url_for('index'))
+    return 'admin'
 
 
 @app.errorhandler(404)
@@ -143,3 +180,22 @@ def context_processor():
     return {
         'sso_login_url': esi_security.get_auth_uri()
     }
+
+
+@app.template_filter('mail_recipients')
+def filter_mail_recipients(data):
+    return ', '.join([r['recipient_name'] for r in data])
+
+
+# ====================================================
+# Util
+# ====================================================
+
+def get_affiliation(app: 'esipy.App', client: 'esipy.EsiClient', character_id: int) -> (str, str):
+    result = client.request(app.op['get_characters_character_id'](character_id=character_id)).data
+    corp_id, alliance_id = result['corporation_id'], result.get('alliance_id')
+    ids = [i for i in [corp_id, alliance_id] if i]
+    result = client.request(app.op['post_universe_names'](ids=ids)).data
+    corp_name = result[0]['name']
+    alliance_name = result[1]['name'] if len(ids) == 2 else None
+    return corp_name, alliance_name

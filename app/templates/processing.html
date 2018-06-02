@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<h3><u>Application processing</u></h3>
+<h5>There are {{ applications | length }} outstanding application(s)</h5>
+<br>
+<table class="highlight responsive-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Note</th>
+      <th>View API</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for app in applications %}
+      <tr>
+        <td>{{ app.user.name }}</td>
+        <td>{% if app.note %}{{ app.note }}{% endif %}</td>
+        <td><a href="{{ url_for('view_api', character_id=app.user.id) }}" class="btn blue">View <i class="material-icons right">send</i></a></td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

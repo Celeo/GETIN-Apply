@@ -8,7 +8,8 @@
   <script
     src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"
     crossorigin="anonymous"></script>
-    <style>p { font-size: 125%; }</style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+  {% block head_extra %}{% endblock %}
 </head>
 <body class="grey lighten-3">
 
@@ -20,12 +21,12 @@
 {% if not current_user.is_authenticated %}
       <li><a href="{{ sso_login_url }}">Log in</a></li>
 {% else %}
-{% if current_user.recruiter or current_user.admin %}
-    <li><a href="#">Recruitment</a></li>
-{% endif %}
-{% if current_user.admin %}
-    <li><a href="#">Admin</a></li>
-{% endif %}
+  {% if current_user.recruiter or current_user.admin %}
+      <li><a href="{{ url_for('processing') }}">Recruitment</a></li>
+  {% endif %}
+  {% if current_user.admin %}
+      <li><a href="{{ url_for('admin') }}">Admin</a></li>
+  {% endif %}
     <li><a href="{{ url_for('logout') }}">Log out</a></li>
 {% endif %}
     </ul>
@@ -33,21 +34,21 @@
 </nav>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-{% for category, message in messages %}
-<div class="container">
-{% if category == 'success' %}
-  <div class="card light-green lighten-2">
-{% else %}
-    <div class="card deep-orange lighten-2">
-{% endif %}
-    <div class="card-content">
-      <p>{{ message }}</p>
+  {% if messages %}
+    {% for category, message in messages %}
+    <div class="container">
+      {% if category == 'success' %}
+        <div class="card light-green lighten-2">
+      {% else %}
+          <div class="card deep-orange lighten-2">
+      {% endif %}
+        <div class="card-content">
+          <p>{{ message }}</p>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-{% endfor %}
-{% endif %}
+    {% endfor %}
+  {% endif %}
 {% endwith %}
 
 <div class="container">

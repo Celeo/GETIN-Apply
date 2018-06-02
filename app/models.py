@@ -47,6 +47,7 @@ class Application(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', backref=db.backref('applications', lazy=True))
     note = db.Column(db.String)
     status = db.Column(db.String)
 
