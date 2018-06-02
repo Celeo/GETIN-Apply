@@ -1,0 +1,7 @@
+{
+  "SQLALCHEMY_TRACK_MODIFICATIONS": false,
+  "SQLALCHEMY_DATABASE_URI": "sqlite:///../data.db",
+  "CLIENT_ID": "",
+  "SECRET_KEY": "",
+  "REDIRECT_URI": ""
+}

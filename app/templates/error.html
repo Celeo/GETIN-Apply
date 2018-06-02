@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<center>
+  <h3>Error {{ code }}</h3>
+  <p>
+{% if error == 404 %}
+    That page doesn't exist.
+{% else if error == 500 %}
+    Something in the server broke.
+{% endif %}
+  </p>
+</center>
+{% endblock %}
