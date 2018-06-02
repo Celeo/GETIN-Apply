@@ -4,11 +4,11 @@
   <title>GETIN Apply</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
-  <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <script
     src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"
     crossorigin="anonymous"></script>
+    <style>p { font-size: 125%; }</style>
 </head>
 <body class="grey lighten-3">
 
@@ -20,6 +20,12 @@
 {% if not current_user.is_authenticated %}
       <li><a href="{{ sso_login_url }}">Log in</a></li>
 {% else %}
+{% if current_user.recruiter or current_user.admin %}
+    <li><a href="#">Recruitment</a></li>
+{% endif %}
+{% if current_user.admin %}
+    <li><a href="#">Admin</a></li>
+{% endif %}
     <li><a href="{{ url_for('logout') }}">Log out</a></li>
 {% endif %}
     </ul>
@@ -27,21 +33,21 @@
 </nav>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-      <div class="container">
-        {% if category == 'success' %}
-          <div class="card light-green lighten-2">
-        {% else %}
-          <div class="card deep-orange lighten-2">
-        {% endif %}
-          <div class="card-content">
-            <p>{{ message }}</p>
-          </div>
-        </div>
-      </div>
-    {% endfor %}
-  {% endif %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="container">
+{% if category == 'success' %}
+  <div class="card light-green lighten-2">
+{% else %}
+    <div class="card deep-orange lighten-2">
+{% endif %}
+    <div class="card-content">
+      <p>{{ message }}</p>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endif %}
 {% endwith %}
 
 <div class="container">

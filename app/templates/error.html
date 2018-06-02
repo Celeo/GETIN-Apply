@@ -3,12 +3,12 @@
 {% block body %}
 <center>
   <h3>Error {{ code }}</h3>
-  <p>
-{% if error == 404 %}
+  <h4>
+{% if code == 404 %}
     That page doesn't exist.
-{% else if error == 500 %}
+{% elif code == 500 %}
     Something in the server broke.
 {% endif %}
-  </p>
+  </h4>
 </center>
 {% endblock %}

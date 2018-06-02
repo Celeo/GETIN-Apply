@@ -72,7 +72,10 @@ esi_scopes: list = [
 
 
 def get_affiliation(app: 'esipy.App', client: 'esipy.EsiClient', character_id: int) -> Tuple[str, str]:
-    result = client.request(app.op['get_characters_character_id'](character_id=character_id)).data[0]
-    corp_id, alliance_id = result['corporation_id'], result['alliance_id']
-    result = client.request(app.op['post_universe_names'](ids=[corp_id, alliance_id])).data
-    return result[0]['name'], result[1]['name']
+    result = client.request(app.op['get_characters_character_id'](character_id=character_id)).data
+    corp_id, alliance_id = result['corporation_id'], result.get('alliance_id')
+    ids = [i for i in [corp_id, alliance_id] if i]
+    result = client.request(app.op['post_universe_names'](ids=ids)).data
+    corp_name = result[0]['name']
+    alliance_name = result[1]['name'] if len(ids) == 2 else None
+    return corp_name, alliance_name

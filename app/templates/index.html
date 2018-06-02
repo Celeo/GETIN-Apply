@@ -3,5 +3,20 @@
 {% block body %}
 <center>
   <h3><u>The Society For Unethical Treatment Of Sleepers</u></h3>
+  <br>
+{% if not current_user.is_anonymous %}
+  {% if not current_user.is_in_alliance %}
+    {% if not app_status %}
+      <h4>You're not in the alliance. Click the button to apply.</h4>
+      <a href="{{ url_for('apply') }}" class="btn btn-large blue waves-effect waves-light">Apply
+        <i class="material-icons right">input</i>
+    </a>
+    {% else %}
+      <h4>Your application's status is: {{ app_status }}</h4>
+    {% endif %}
+  {% else %}
+    <h4>You're already a member of the alliance.</h4>
+  {% endif %}
+{% endif %}
 </center>
 {% endblock %}

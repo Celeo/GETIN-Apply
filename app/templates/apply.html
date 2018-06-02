@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<h3><u>Apply to join</u></h3>
+<h4>Steps</h4>
+{% if step == 1 %}
+<p>
+  1. Click this button and perform the additional login through EVE's SSO:
+  <a href="{{ scopes_sso_login }}" class="btn grey darken-3 white-text">Go to SSO
+    <i class="material-icons right">send</i>
+  </a>
+</p>
+{% elif step == 2 %}
+<p style="text-decoration: line-through">1. Click this button and perform the additional login through EVE's SSO</p>
+<p>2. Submit application:</p>
+<div class="row">
+  <form action="{{ url_for('submit_apply') }}" class="col s12">
+    <div class="row">
+        <div class="input-field col s12">
+          <textarea name="note" id="note" class="materialize-textarea"></textarea>
+          <label for="note">Anything else you want to add</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col s4">
+          <button class="btn blue" type="submit">Submit
+              <i class="material-icons right">send</i>
+          </button>
+        </div>
+      </div>
+  </form>
+</div>
+{% endif %}
+{% endblock %}
