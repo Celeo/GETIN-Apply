@@ -2,24 +2,80 @@
 
 {% block body %}
 <h3><u>Application processing</u></h3>
-<h5>There are {{ applications | length }} outstanding application(s)</h5>
 <br>
-<table class="highlight responsive-table">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Note</th>
-      <th>View API</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for app in applications %}
+<div id="app">
+  <table class="highlight responsive-table">
+    <thead>
       <tr>
-        <td>{{ app.user.name }}</td>
-        <td>{% if app.note %}{{ app.note }}{% endif %}</td>
-        <td><a href="{{ url_for('view_api', character_id=app.user.id) }}" class="btn blue">View <i class="material-icons right">send</i></a></td>
+        <th>Name</th>
+        <th>Status</th>
+        <th>Note</th>
+        <th>View API</th>
+        <th>Change status</th>
       </tr>
-    {% endfor %}
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      {% for app in applications %}
+        <tr>
+          <td>{{ app.user.name }}</td>
+          <td>{{ app.status }}</td>
+          <td>{% if app.note %}{{ app.note }}{% endif %}</td>
+          <td><a href="{{ url_for('view_api', character_id=app.user.id) }}" class="btn blue">View <i class="material-icons right">send</i></a></td>
+          <td><a class="btn blue" @click='openModal({{ app.id }}, "{{ app.user.name }}", "{{ app.status }}")'>Change status</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <h4>Change application status -- [[ name ]]</h4>
+      <p>Current status: [[ status ]]</p>
+      <div class="row">
+        <form :action="'/processing/' + id + '/status'" method="POST" class="col s12">
+          <div class="row">
+            <div class="col s4">
+              <label for="status">Status</label>
+              <select id="status" name="status" v-model="newStatus" class="browser-default">
+                <option value="New">New</option>
+                <option value="Under review">Under review</option>
+                <option value="Accepted">Accepted</option>
+                <option value="Denied">Denied</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col s4">
+              <button class="btn blue" type="submit">Save</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-light btn-flat">Close</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  new Vue({
+    el: '#app',
+    delimiters: ['[[', ']]'],
+    data: {
+      id: 0,
+      name: '',
+      status: '',
+      newStatus: ''
+    },
+    methods: {
+      openModal(id, name, status) {
+        this.id = id
+        this.name = name
+        this.status= status
+        this.newStatus = status
+        M.Modal.getInstance(document.querySelector('.modal')).open()
+      }
+    }
+  })
+</script>
 {% endblock %}

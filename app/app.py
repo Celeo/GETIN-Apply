@@ -132,6 +132,26 @@ def processing():
     return render_template('processing.html', applications=Application.query.all())
 
 
+@app.route('/processing/<int:app_id>/status', methods=['POST'])
+@login_required
+def processing_change_status(app_id):
+    if not current_user.recruiter or current_user.admin:
+        return redirect(url_for('index'))
+    if not request.method == 'POST':
+        return redirect(url_for('processing'))
+    application = Application.query.filter_by(id=app_id).first()
+    if not application:
+        flash('Unknown app id', 'error')
+        return redirect(url_for('processing'))
+    new_status = request.form.get('status')
+    if not new_status:
+        flash('No new status set', 'error')
+        return redirect(url_for('processing'))
+    application.status = new_status
+    db.session.commit()
+    return redirect(url_for('processing'))
+
+
 @app.route('/api_view/<int:character_id>')
 @login_required
 def view_api(character_id: int):

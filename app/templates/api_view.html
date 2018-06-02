@@ -1,14 +1,5 @@
 {% extends 'base.html' %}
 
-{% block head_extra %}
-<script
-  src="https://unpkg.com/axios/dist/axios.min.js"
-  crossorigin="anonymous"></script>
-<script
-  src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.min.js"
-  crossorigin="anonymous"></script>
-{% endblock %}
-
 {% block body %}
 </div>
 <div id="app">
@@ -163,8 +154,7 @@
     methods: {
       loadMail(id) {
         this.mail_body = '<p class="loading">Loading ...</p>'
-        const instance = M.Modal.getInstance(document.querySelector('.modal'))
-        instance.open()
+        M.Modal.getInstance(document.querySelector('.modal')).open()
         Vue.nextTick(() => {
           axios.get(`/api_view/mail/${this.refresh_token}/${id}`).then(response => {
             this.mail_body = response.data
