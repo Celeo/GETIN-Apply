@@ -127,7 +127,7 @@ def submit_apply():
 @app.route('/processing')
 @login_required
 def processing():
-    if not current_user.recruiter or current_user.admin:
+    if not current_user.recruiter and not current_user.admin:
         return redirect(url_for('index'))
     return render_template('processing.html', applications=Application.query.all())
 
@@ -135,7 +135,7 @@ def processing():
 @app.route('/processing/<int:app_id>/status', methods=['POST'])
 @login_required
 def processing_change_status(app_id):
-    if not current_user.recruiter or current_user.admin:
+    if not current_user.recruiter and not current_user.admin:
         return redirect(url_for('index'))
     if not request.method == 'POST':
         return redirect(url_for('processing'))
@@ -155,7 +155,7 @@ def processing_change_status(app_id):
 @app.route('/api_view/<int:character_id>')
 @login_required
 def view_api(character_id: int):
-    if not current_user.recruiter or current_user.admin:
+    if not current_user.recruiter and not current_user.admin:
         return redirect(url_for('index'))
     user = User.query.filter_by(id=character_id).first()
     if not user:
