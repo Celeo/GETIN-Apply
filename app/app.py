@@ -207,6 +207,16 @@ def filter_mail_recipients(data):
     return ', '.join([r['recipient_name'] for r in data])
 
 
+@app.template_filter('format_number')
+def filter_format_number(s):
+    return '{:,}'.format(int(s))
+
+
+@app.template_filter('sort_skills')
+def filter_sort_skills(skills):
+    return sorted(skills, key=lambda e: (e['group_name'], e['skill_name']))
+
+
 # ====================================================
 # Util
 # ====================================================

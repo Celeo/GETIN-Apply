@@ -14,6 +14,7 @@
           <li class="tab col"><a href="#corphistory">Corp History</a></li>
           <li class="tab col"><a href="#walletjournal">Wallet Journal</a></li>
           <li class="tab col"><a href="#mail">Mail</a></li>
+          <li class="tab col"><a href="#skills">Skills</a></li>
         </ul>
       </div>
       <div id="contacts" class="col s12">
@@ -52,7 +53,7 @@
                 <td>{{ entry.location_id }}</td>
                 <td>{{ entry.location_type }}</td>
                 <td>{{ entry.type_name }}</td>
-                <td>{{ entry.quantity }}</td>
+                <td>{{ entry.quantity | format_number }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -93,8 +94,8 @@
             <tr>
               <td>{{ entry.first_party_name }}</td>
               <td>{{ entry.second_party_name }}</td>
-              <td>{{ entry.amount }}</td>
-              <td>{{ entry.balance }}</td>
+              <td>{{ entry.amount | format_number }}</td>
+              <td>{{ entry.balance | format_number }}</td>
               <td>{{ entry.date }}</td>
               <td>{{ entry.description }}</td>
             </tr>
@@ -126,6 +127,27 @@
                     <i class="material-icons">email</i>
                   </a>
                 </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div id="skills" class="col s12">
+        <h4>Skills ({{ explorer.get_total_sp | format_number }} total SP)</h4>
+        <table class="responsive-table highlight">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Group</th>
+              <th>Level</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in explorer.get_skills | sort_skills %}
+              <tr>
+                <td>{{ entry.skill_name }}</td>
+                <td>{{ entry.group_name }}</td>
+                <td>{{ entry.trained_skill_level }}</td>
               </tr>
             {% endfor %}
           </tbody>

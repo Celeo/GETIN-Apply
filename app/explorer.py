@@ -1,6 +1,7 @@
 import datetime
 import logging
 import sqlite3
+from typing import Tuple
 
 
 class CharacterExplorer:
@@ -159,6 +160,7 @@ class CharacterExplorer:
             'assets': self.app.op['get_characters_character_id_assets'](character_id=self.get_character_id),
             'history': self.app.op['get_characters_character_id_corporationhistory'](character_id=self.get_character_id),
             'wallet': self.app.op['get_characters_character_id_wallet'](character_id=self.get_character_id),
+            'skills': self.app.op['get_characters_character_id_skills'](character_id=self.get_character_id)
         }
         for i in range(0, self._number_of_contact_pages()):
             page = i + 1
@@ -173,30 +175,42 @@ class CharacterExplorer:
                 if pair[0] == op_pair[0]:
                     fetched[op_key_name] = pair[1].data
         fetched['mail'] = self.fetch_mail()
-        fetched['assets'] = self.resolve_type_ids(fetched['assets'])
+        fetched['skill_total'] = fetched['skills']['total_sp']
+        fetched['skills'] = fetched['skills']['skills']
+        fetched['assets'], fetched['skills'] = self.resolve_type_ids(fetched['assets'], fetched['skills'])
         self.compact_pagination(fetched)
         self.resolve_names(fetched)
         self.data.update(fetched)
 
-    def resolve_type_ids(self, data: list) -> None:
-        """Takes the list of asset entries and supplies the type names.
-
-        The passed list items are modified in-place.
+    def resolve_type_ids(self, assets: list, skills: list) -> Tuple[list, list]:
+        """Takes lists of assets and skills and injects the type names.
 
         Args:
-            list of ESI data
+            assets: list of ESI data on assets
+            skills: list of ESI data on skills
 
         Returns:
-            None
+            tuple of assets and skills with names inserted
         """
-        ids = [item['type_id'] for item in data]
+        ids = [item['type_id'] for item in assets]
         sde_data = self._do_sde_query('SELECT typeID, typeName from invTypes where typeID in ({})'.format(', '.join('?' for _ in ids)), ids)
-        item_lookups = {}
-        for pair in sde_data:
-            item_lookups[pair[0]] = pair[1]
-        for item in data:
-            item['type_name'] = item_lookups.get(item['type_id'], '<unknown>')
-        return data
+        lookups = {}
+        for entry in sde_data:
+            lookups[entry[0]] = entry[1]
+        for entry in assets:
+            entry['type_name'] = lookups.get(entry['type_id'], '<unknown>')
+        ids = [item['skill_id'] for item in skills]
+        query = 'SELECT invTypes.typeID, invTypes.typeName, invGroups.groupName FROM invTypes LEFT JOIN invGroups ON invTypes.groupID = invGroups.groupID WHERE invTypes.typeID in ({})' \
+                .format(', '.join('?' for _ in ids))
+        sde_data = self._do_sde_query(query, ids)
+        lookups.clear()
+        for entry in sde_data:
+            lookups[entry[0]] = {'name': entry[1], 'group': entry[2]}
+        for entry in skills:
+            lookup_entry = lookups.get(entry['skill_id'], {})
+            entry['skill_name'] = lookup_entry.get('name', '<unknown>')
+            entry['group_name'] = lookup_entry.get('group', '<unknown>')
+        return assets, skills
 
     def _ids_to_names(self, ids: list) -> dict:
         """Makes batched calls to resolve ids to names.
@@ -387,6 +401,14 @@ class CharacterExplorer:
     @property
     def get_corporation_history(self) -> list:
         return self.data['history']
+
+    @property
+    def get_total_sp(self) -> list:
+        return self.data['skill_total']
+
+    @property
+    def get_skills(self) -> list:
+        return self.data['skills']
 
 
 all_esi_read_scopes: list = [
