@@ -4,6 +4,7 @@
   "CLIENT_ID": "",
   "SECRET_KEY": "",
   "REDIRECT_URI": "",
+  "DISCORD_LINK": "",
   "LOGGING_LEVEL": 20,
   "MINIFY_PAGE": true
 }
