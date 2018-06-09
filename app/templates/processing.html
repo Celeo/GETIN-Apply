@@ -2,6 +2,11 @@
 
 {% block body %}
 <h3><u>Application processing</u></h3>
+{% with arg = 0 if show_completed else 1, message = 'Show uncompleted apps' if show_completed else 'Show completed apps' %}
+  <a href="{{ url_for('processing', show_completed=arg) }}" class="btn waves-effect waves-light blue">{{ message }}
+{% endwith %}
+  <i class="material-icons right">send</i>
+</a>
 <br>
 <div id="app">
   <table class="highlight responsive-table">
@@ -20,8 +25,8 @@
           <td>{{ app.user.name }}</td>
           <td>{{ app.status }}</td>
           <td>{% if app.note %}{{ app.note }}{% endif %}</td>
-          <td><a href="{{ url_for('view_api', character_id=app.user.id) }}" class="btn blue">View <i class="material-icons right">send</i></a></td>
-          <td><a class="btn blue" @click='openModal({{ app.id }}, "{{ app.user.name }}", "{{ app.status }}")'>Change status</a></td>
+          <td><a href="{{ url_for('view_api', character_id=app.user.id) }}" class="btn waves-effect waves-light blue">View <i class="material-icons right">send</i></a></td>
+          <td><a class="btn waves-effect waves-light blue" @click='openModal({{ app.id }}, "{{ app.user.name }}", "{{ app.status }}")'>Change status</a></td>
         </tr>
       {% endfor %}
     </tbody>
@@ -31,9 +36,9 @@
       <h4>Change application status -- [[ name ]]</h4>
       <p>Current status: [[ status ]]</p>
       <div class="row">
-        <form :action="'/processing/' + id + '/status'" method="POST" class="col s12">
+        <form :action="'/processing/' + id + '/status'" method="POST" class="col s6">
           <div class="row">
-            <div class="col s4">
+            <div class="col s8">
               <label for="status">Status</label>
               <select id="status" name="status" v-model="newStatus" class="browser-default">
                 <option value="New">New</option>
@@ -44,11 +49,27 @@
             </div>
           </div>
           <div class="row">
-            <div class="col s4">
-              <button class="btn blue" type="submit">Save</button>
+            <div class="col s8">
+              <button class="btn waves-effect waves-light blue" type="submit">Save</button>
             </div>
           </div>
         </form>
+{% if not show_completed %}
+        <form :action="'/processing/' + id + '/complete'" method="POST" class="col s6">
+          <div class="row">
+            <div class="col s12">
+              <p>
+                Marking this application as <i>complete</i> means it won't show up in the list of apps for recruiters any more. It's basically like deleting it.
+              </p>
+              <p>
+                This doesn't change the <i>status</i>, which is what recruiters and the applicant both see, so you should set the status to something final, then come
+                back and hit this button.
+              </p>
+              <button class="btn waves-effect waves-light green" type="submit">Mark complete</button>
+            </div>
+          </div>
+        </form>
+{% endif %}
       </div>
     </div>
     <div class="modal-footer">

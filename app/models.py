@@ -8,8 +8,8 @@ class User(db.Model):
     corporation = db.Column(db.String)
     alliance = db.Column(db.String)
     refresh_token = db.Column(db.String)
-    recruiter = db.Column(db.Boolean, default=False)
-    admin = db.Column(db.Boolean, default=False)
+    recruiter = db.Column(db.Boolean)
+    admin = db.Column(db.Boolean)
 
     def __init__(self, name: str, corporation: str, alliance: str, refresh_token: str = None,
                  recruiter: bool = False, admin: bool = False) -> None:
@@ -50,11 +50,13 @@ class Application(db.Model):
     user = db.relationship('User', backref=db.backref('applications', lazy=True))
     note = db.Column(db.String)
     status = db.Column(db.String)
+    complete = db.Column(db.Boolean)
 
-    def __init__(self, user_id: int, note: str, status: str = 'New') -> None:
+    def __init__(self, user_id: int, note: str, status: str = 'New', complete: bool = False) -> None:
         self.user_id = user_id
         self.note = note
         self.status = status
+        self.complete = complete
 
     def __repr__(self) -> str:
         return f'<Application-{self.id}-{self.user_id}>'

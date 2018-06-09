@@ -129,7 +129,9 @@ def submit_apply():
 def processing():
     if not current_user.recruiter and not current_user.admin:
         return redirect(url_for('index'))
-    return render_template('processing.html', applications=Application.query.all())
+    show_completed = request.args.get('show_completed', type=int) == 1
+    apps = Application.query.filter_by(complete=show_completed).all()
+    return render_template('processing.html', applications=apps, show_completed=show_completed)
 
 
 @app.route('/processing/<int:app_id>/status', methods=['POST'])
@@ -148,6 +150,22 @@ def processing_change_status(app_id):
         flash('No new status set', 'error')
         return redirect(url_for('processing'))
     application.status = new_status
+    db.session.commit()
+    return redirect(url_for('processing'))
+
+
+@app.route('/processing/<int:app_id>/complete', methods=['POST'])
+@login_required
+def processing_set_complete(app_id):
+    if not current_user.recruiter and not current_user.admin:
+        return redirect(url_for('index'))
+    if not request.method == 'POST':
+        return redirect(url_for('processing'))
+    application = Application.query.filter_by(id=app_id).first()
+    if not application:
+        flash('Unknown app id', 'error')
+        return redirect(url_for('processing'))
+    application.complete = True
     db.session.commit()
     return redirect(url_for('processing'))
 
